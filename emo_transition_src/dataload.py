@@ -20,11 +20,13 @@ def load_data(args, DATA_PATH):
     personalities = [eval(i) for i in df['Personality']]
 
     if args.Senti_or_Emo == 'Emotion': # Emotion
+
         init_emo     = df['Emotion_1']
         response_emo = df['Emotion_3']
         init_emo     = [Emotion_dict[i] for i in init_emo]
         response_emo = [Emotion_dict[i] for i in response_emo]
         labels       = df['Emotion_3']
+
     else: # Sentiment (have not modified)
         init_emo     = df['Emotion_1']
         response_emo = df['Emotion_3']
@@ -173,12 +175,3 @@ def load_data(args, DATA_PATH):
     test_dataloader = DataLoader(test_data, sampler=test_sampler, batch_size=args.batch_size)
 
     return len(train_data), train_dataloader, valid_dataloader, test_dataloader
-
-
-
-
-
-
-
-
-

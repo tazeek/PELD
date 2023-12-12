@@ -27,7 +27,7 @@ def train_model(model, args, train_dataloader, valid_dataloader, test_dataloader
 
     model.zero_grad()
 
-    for _ in tnrange(1, args.epochs+1, desc='Epoch'):
+    for _ in range(1, args.epochs+1):
         print("<" + "="*22 + F" Epoch {_} "+ "="*22 + ">")
         # Calculate total loss for this epoch
         batch_loss = 0
@@ -47,16 +47,22 @@ def train_model(model, args, train_dataloader, valid_dataloader, test_dataloader
             logits = model(b_input_ids_1, b_input_ids_2, b_input_ids_3, b_attn_mask_1, b_attn_mask_2, b_attn_mask_3, personality=b_personality, init_emo=b_init_emo)
             
             if args.loss_function == 'MSE':
+                
                 loss_fct     = nn.MSELoss()
                 loss         = loss_fct(logits, b_response_emo)
                 pred_emotion = logits.detach().to('cpu').numpy()
                 pred_flat    = vad_to_emo(pred_emotion, Emotion_dict).flatten()
                 labels_flat  = vad_to_emo(b_response_emo.to('cpu'), Emotion_dict).flatten()
+
             else:
+
                 if args.loss_function == 'CE': # cross entropy:
                     loss_fct = nn.CrossEntropyLoss()
+
                 elif args.loss_function == 'Focal': # Focal loss:
                     loss_fct = FocalLoss()
+                
+                b_labels = b_labels.long()
                 
                 loss        = loss_fct(logits, b_labels)
                 logits      = logits.detach().to('cpu').numpy()
@@ -64,13 +70,10 @@ def train_model(model, args, train_dataloader, valid_dataloader, test_dataloader
                 pred_flat   = np.argmax(logits, axis=1).flatten()
                 labels_flat = label_ids.flatten()
             
-            
-            
             pred_list   = np.append(pred_list, pred_flat)
             labels_list = np.append(labels_list, labels_flat)
             df_metrics  = pd.DataFrame({'Epoch':args.epochs,'Actual_class':labels_flat,'Predicted_class':pred_flat})
-           
-
+    
             nb_train_steps += 1
 
             # Backward pass
@@ -104,7 +107,7 @@ def train_model(model, args, train_dataloader, valid_dataloader, test_dataloader
             if key !='accuracy':
                 try:
                     train_logs.append([
-                        labelencoder.classes_[int(eval(key))], 
+                        #labelencoder.classes_[int(eval(key))], 
                         result[key]['precision'], 
                         result[key]['recall'], 
                         result[key]['f1-score'], 

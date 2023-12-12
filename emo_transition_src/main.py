@@ -37,6 +37,7 @@ if args.base == 'RoBERTa':
         model = Emo_Generation.from_pretrained('roberta-base', mode=args.mode).cuda(args.device)
 else:
         model = Emo_Generation.from_pretrained('bert-base-uncased', mode=args.mode).cuda(args.device)
+
 train_model(model, args, train_dataloader, valid_dataloader, test_dataloader)
 
 
